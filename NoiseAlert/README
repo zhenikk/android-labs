@@ -20,3 +20,9 @@ Sound Threshold: Noise level threshold from 1-9
 Sleep Interval: optional sleep time in between periods of active monitoring 
   (to save power)
 Enable Graphics: enable/disable graphical sound volume display (to save power)
+
+Author: Bernhard Suter (Bernhard.R.Suter-at-gmail-dot-com)
+License: http://www.apache.org/licenses/LICENSE-2.0
+Source: http://code.google.com/p/android-labs/source/browse/#svn/trunk/NoiseAlert
+
+September 2008: Initial release for the Android platform running on T-Mobile G1.
