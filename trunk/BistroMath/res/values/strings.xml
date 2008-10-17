@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BistroMath</string>
+    <string name="disp_local_currency">Local Currency</string>
+    <string name="disp_ref_currency">My Currency</string>
+    <string name="disp_amount">Price</string>
+    <string name="disp_tax">% Tax</string>
+    <string name="disp_tip">% Tip</string>
+    <string name="disp_total">Total</string>
+    <string name="disp_people">Per Person</string>
+    <string name="m_amount">Price</string>
+    <string name="m_tax">Tax</string>
+    <string name="m_tip">Tip</string>
+    <string name="m_people">Split</string>
+    <string name="m_fx">FX Rate</string>
+</resources>
