@@ -26,6 +26,7 @@ public final class R {
         public static final int loc_tip=0x7f06000b;
         public static final int loc_total=0x7f06000d;
         public static final int m_amount=0x7f060014;
+        public static final int m_calculator=0x7f060019;
         public static final int m_fx=0x7f060018;
         public static final int m_people=0x7f060017;
         public static final int m_tax=0x7f060015;
@@ -56,6 +57,7 @@ public final class R {
         public static final int disp_tip=0x7f040005;
         public static final int disp_total=0x7f040006;
         public static final int m_amount=0x7f040008;
+        public static final int m_calculator=0x7f04000d;
         public static final int m_fx=0x7f04000c;
         public static final int m_people=0x7f04000b;
         public static final int m_tax=0x7f040009;

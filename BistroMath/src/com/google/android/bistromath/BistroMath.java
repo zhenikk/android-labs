@@ -16,8 +16,10 @@
 package com.google.android.bistromath;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,6 +48,7 @@ public class BistroMath extends Activity {
 	// String values for all keys in virtual keypad
 	final private String[] mKeys = {"1", "2", "3", "4", "5", "6",
 						 	"7", "8", "9", ".", "0", "C"};
+	final int CALC_INTENT_RETURN = 1;
 	
 	// Layout container for the virtual key-pad
 	private TableLayout mKeypad;
@@ -154,9 +157,35 @@ public class BistroMath extends Activity {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		setFieldFocus(item.getItemId());
+		if (item.getItemId() == R.id.m_calculator) {
+			Intent myIntent = new Intent();
+			myIntent.setClassName("com.android.calculator2", "com.android.calculator2.Calculator");
+			startActivityForResult(myIntent, CALC_INTENT_RETURN);
+		} else {
+			setFieldFocus(item.getItemId());
+		}
 		return true;
 	}
+	
+	/**
+	 * Framework method called when return from a launched intent is available.
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode,
+            Intent data) {
+		// The calcualtor in the system platform does not (yet) return a result
+        if (requestCode == CALC_INTENT_RETURN) {
+            if (resultCode == RESULT_OK) {
+                try {
+                	mCalculator.setFeatureValue(mCurrentInputField, Double.parseDouble(data.getAction()));
+                	resetValue();
+                } catch (NumberFormatException e) {
+                	Log.i("BistroMath", "Could not parse value from "+data.getAction());
+                }
+            }
+        }
+    }
+
 	
 	/**
 	 * Framework method to save called when activity is suspended.
