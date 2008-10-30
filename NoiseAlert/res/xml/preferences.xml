@@ -46,11 +46,5 @@
                 android:entryValues="@array/values_sleep"
                 android:dialogTitle="@string/sleep" 
                 android:defaultValue="0" />
-                
-       		<CheckBoxPreference
-        	    android:key="display_update"
-           		android:defaultValue="true"
-            	android:title="@string/display_update"
-            	android:summary="@string/display_update_summary" />
     	</PreferenceCategory>
 </PreferenceScreen>

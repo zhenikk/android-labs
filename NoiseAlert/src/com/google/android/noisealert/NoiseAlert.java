@@ -16,19 +16,21 @@
 
 package com.google.android.noisealert;
 
-import java.util.Formatter;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
@@ -40,6 +42,7 @@ public class NoiseAlert extends Activity {
 	private static final int NO_NUM_DIALOG_ID=1;
 
 	/** running state **/
+	private boolean mAutoResume = false;
 	private boolean mRunning = false;
 	private boolean mTestMode = false;
 	private int mTickCount = 0;
@@ -49,13 +52,14 @@ public class NoiseAlert extends Activity {
 	private int mThreshold;
 	private int mPollDelay;
 	private String mPhoneNumber;
-	private boolean mGraphicsEnable;
+	
+	private PowerManager.WakeLock mWakeLock;
 
 	private Handler mHandler = new Handler();
 
 	/* References to view elements */
 	private TextView mStatusView;
-	private TextView mSignalView;
+	private ImageView mActivityLed;
 	private SoundLevelView mDisplay;
 
 	/* data source */
@@ -81,6 +85,8 @@ public class NoiseAlert extends Activity {
 			}
 
 			mTickCount++;
+			setActivityLed(mTickCount% 2 == 0);
+			
 			if ((mTestMode || mPollDelay > 0) && mTickCount > 100) {
 				if (mTestMode) {
 					stop();
@@ -101,10 +107,13 @@ public class NoiseAlert extends Activity {
 
 		setContentView(R.layout.main);
 		mStatusView = (TextView) findViewById(R.id.status);
-		mSignalView = (TextView) findViewById(R.id.signal);
+		mActivityLed = (ImageView) findViewById(R.id.activity_led);
 
 		mSensor = new SoundMeter();
 		mDisplay = (SoundLevelView) findViewById(R.id.volume);
+		
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "NoiseAlert");
 	}
 	
 	@Override
@@ -112,6 +121,9 @@ public class NoiseAlert extends Activity {
 		super.onResume();
 		readApplicationPreferences();
 		mDisplay.setLevel(0, mThreshold);
+		if (mAutoResume) {
+			start();
+		}
 	}
 
 	@Override
@@ -155,10 +167,12 @@ public class NoiseAlert extends Activity {
 					showDialog(NO_NUM_DIALOG_ID);
 					break;
 				}
+				mAutoResume = true;
 				mRunning = true;
 				mTestMode = false;
 				start();
 			} else {
+				mAutoResume = false;
 				mRunning = false;
 				stop();
 			}
@@ -191,15 +205,23 @@ public class NoiseAlert extends Activity {
 		mTickCount = 0;
 		mHitCount = 0;
 		mSensor.start();
+		setActivityLed(true);
+		if (!mWakeLock.isHeld()) {
+			mWakeLock.acquire();
+		}
 		mHandler.postDelayed(mPollTask, POLL_INTERVAL);
 	}
 
 	private void stop() {
+		if (mWakeLock.isHeld()) {
+			mWakeLock.release();
+		}
 		mHandler.removeCallbacks(mSleepTask);
 		mHandler.removeCallbacks(mPollTask);
 		mSensor.stop();
 		mDisplay.setLevel(0,0);
 		updateDisplay("stopped...", 0.0);
+		setActivityLed(false);
 		mRunning = false;
 		mTestMode = false;
 	}
@@ -207,6 +229,7 @@ public class NoiseAlert extends Activity {
 	private void sleep() {
 		mSensor.stop();
 		updateDisplay("paused...", 0.0);
+		setActivityLed(false);
 		mHandler.postDelayed(mSleepTask, 1000*mPollDelay);
 	}
 
@@ -218,15 +241,16 @@ public class NoiseAlert extends Activity {
 		Log.i(LOG_TAG, "threshold=" + mThreshold);
 		mPollDelay = Integer.parseInt(prefs.getString("sleep", null));
 		Log.i(LOG_TAG, "sleep=" + mPollDelay);
-		mGraphicsEnable = prefs.getBoolean("display_update", true);
-		Log.i(LOG_TAG, "graphics enable=" + mGraphicsEnable);
 	}
 
 	private void updateDisplay(String status, double signalEMA) {
 		mStatusView.setText(status);
 
-		mSignalView.setText((new Formatter()).format("%03.1f",signalEMA).toString());
-		if (mGraphicsEnable) mDisplay.setLevel((int)signalEMA, mThreshold);
+		mDisplay.setLevel((int)signalEMA, mThreshold);
+	}
+	
+	private void setActivityLed(boolean on) {
+		mActivityLed.setVisibility( on ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	private void callForHelp() {
@@ -235,6 +259,7 @@ public class NoiseAlert extends Activity {
 			showDialog(NO_NUM_DIALOG_ID);
 			return;
 		}
+		mAutoResume = false;
 		stop();
 		final Uri number = Uri.fromParts("tel", mPhoneNumber, "");
 		startActivity(new Intent(Intent.ACTION_CALL, number));	
