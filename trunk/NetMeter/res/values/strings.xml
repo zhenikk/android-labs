@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NetMeter</string>
+    <string name="iconized">NetMeter display</string>    
+    <string name="menu_reset">reset</string>
+    <string name="menu_toggle">toggle scale</string>
+    <string name="menu_stop">stop</string>
+    <string name="disp_wifi">Wifi</string>
+    <string name="disp_cell">Cell</string>  
+    <string name="disp_cpu">CPU load</string>
+    <string name="disp_battery">Battery</string>
+    <string name="disp_name">Name</string>
+    <string name="disp_type">Speed</string>
+    <string name="disp_in">Bytes in</string>
+    <string name="disp_out">Bytes out</string>  
+    <string name="disp_user">apps</string>
+    <string name="disp_system">kernel</string>  
+</resources>
