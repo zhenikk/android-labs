@@ -141,9 +141,10 @@ public class NetMeter extends Activity {
     	mStatsFields.addElement(createTableRow(table, -1, R.string.disp_in, 0));
     	mStatsFields.addElement(createTableRow(table, -1, R.string.disp_out, 0));
     	createTableRow(table, 0, 0, 0);
-    	mCpuFields.addElement(createTableRow(table, R.string.disp_cpu, -1, 0));
-    	mCpuFields.addElement(createTableRow(table, -1, R.string.disp_user, 0));
-    	mCpuFields.addElement(createTableRow(table, -1, R.string.disp_system, 0));
+    	mCpuFields.addElement(createTableRow(table, R.string.disp_cpu,
+    				R.string.disp_cpu_type, 0));
+    	//mCpuFields.addElement(createTableRow(table, -1, R.string.disp_user, 0));
+    	//mCpuFields.addElement(createTableRow(table, -1, R.string.disp_system, 0));
     }
     
     private TextView createTableRow(TableLayout table, int c1, int c2, int c3) {

@@ -8,6 +8,7 @@
     <string name="disp_wifi">Wifi</string>
     <string name="disp_cell">Cell</string>  
     <string name="disp_cpu">CPU load</string>
+    <string name="disp_cpu_type"> (app/kernel)</string>
     <string name="disp_battery">Battery</string>
     <string name="disp_name">Name</string>
     <string name="disp_type">Speed</string>
