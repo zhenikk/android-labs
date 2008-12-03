@@ -107,9 +107,10 @@ public class HistoryBuffer {
 		switch (resolution) {
 		case 0:
 		case 1:
-			return mHourly;
 		case 2:
+			return mHourly;
 		case 3:
+		case 4:
 			return mSixHours;
 		default:
 			return mDaily;
