@@ -27,21 +27,13 @@ import android.util.AttributeSet;
 import android.view.View;
 
 
-class GraphView extends View {
-	final public int CELL_IN = Color.RED;
-	final public int CELL_OUT = Color.GREEN;
-	final public int WIFI_IN = 0xffd65b06;  // orange
-	final public int WIFI_OUT = 0xfff0e70f; // yellow
-	final public int CPU = Color.LTGRAY;
-	
+class GraphView extends View {	
 	final private int TICKS = 3;
 	final private Paint mBackgroundPaint = makePaint(Color.BLUE);
 	final private Paint mAxisPaint = makePaint(Color.BLACK);
-	final private Paint mCellIn = makePaint(CELL_IN);
-	final private Paint mCellOut = makePaint(CELL_OUT);
-	final private Paint mWifiIn = makePaint(WIFI_IN);
-	final private Paint mWifiOut = makePaint(WIFI_OUT);
-	final private Paint mCpu = makePaint(CPU);
+	final private Paint mIn = makePaint(Color.RED);
+	final private Paint mOut = makePaint(Color.GREEN);
+	final private Paint mCpu = makePaint(Color.LTGRAY);
 	
 	private Vector<StatCounter> mCounters = null;
 	private HistoryBuffer mCpuCounter = null;
@@ -53,23 +45,26 @@ class GraphView extends View {
 	class Projection {
 		final public int mWidth;
 		final public int  mHeight;
+		final public int mOffset;
 		final public int mXrange;
 		final public int mYrange;
 		final private float mXscale;
 		final private float mYscale;
-		public Projection(int width, int height, int x_range, int y_range) {
+		public Projection(int width, int height, int offset,
+						int x_range, int y_range) {
 			mWidth = width;
 			mHeight = height;
+			mOffset = offset;
 			mXrange = x_range;
 			mYrange = y_range;
-			mXscale = (float)(width - 10) / x_range;
-			mYscale = (float)(height - 10) / y_range;
+			mXscale = (float)(width) / x_range;
+			mYscale = (float)(height) / y_range;
 		}
 		public float x(int x) {
 			return x * mXscale + 5;
 		}
 		public float y(int y) {
-			return mHeight - y * mYscale - 5;
+			return mHeight - y * mYscale + mOffset;
 		}
 	}
 	
@@ -84,14 +79,14 @@ class GraphView extends View {
 			mResolution = 0;
 		}
 		invalidate();
-		mRefreshTicks = (mResolution + 1) * 3;
+		mRefreshTicks = mResolution  * 2 + 1;
 		return getBanner();
 	}
 	
 	public void refresh() {
 		if (mRefreshTicks == 0) {
 			invalidate();
-			mRefreshTicks = (mResolution + 1) * 3;
+			mRefreshTicks = mResolution * 2 + 1;
 		} else {
 			--mRefreshTicks;
 		}
@@ -110,23 +105,34 @@ class GraphView extends View {
         canvas.drawPaint(mBackgroundPaint);
         if (mCounters == null || mCpuCounter == null) return;
   
-        Projection proj = getDataScale();
-        Projection percent = new Projection(proj.mWidth, proj.mHeight,
-        									proj.mXrange, 100);
+        Projection cell_proj = getDataScale(0);
+        Projection wifi_proj = getDataScale(1);
+        int offset = (getHeight() - 15) / 3 * 2;
+        Projection cpu_proj = new Projection(cell_proj.mWidth,
+        									cell_proj.mHeight,
+        									offset,
+        									cell_proj.mXrange, 100);
         
-        drawAxis(canvas, proj, percent);
+        drawAxis(canvas, cell_proj, "cellular", "bps");
+        drawAxis(canvas, wifi_proj, "wifi", "bps");
+        drawAxis(canvas, cpu_proj, "cpu", "%");
         
-        drawGraph(canvas, proj, mCellIn, 
+		
+		canvas.drawText(getBanner(),
+				cpu_proj.x(cpu_proj.mXrange / 2), cpu_proj.y(0) + 12,
+				mAxisPaint);
+        
+        drawGraph(canvas, cell_proj, mIn, 
         		mCounters.get(0).getHistory().getData(mResolution));
-        drawGraph(canvas, proj, mCellOut, 
+        drawGraph(canvas, cell_proj, mOut, 
         		mCounters.get(1).getHistory().getData(mResolution));
         
-        drawGraph(canvas, proj, mWifiIn, 
+        drawGraph(canvas, wifi_proj, mIn, 
         		mCounters.get(2).getHistory().getData(mResolution));
-        drawGraph(canvas, proj, mWifiOut, 
+        drawGraph(canvas, wifi_proj, mOut, 
         		mCounters.get(3).getHistory().getData(mResolution));
         
-        drawGraph(canvas, percent, mCpu,
+        drawGraph(canvas, cpu_proj, mCpu,
         		mCpuCounter.getData(mResolution));
 	}
 	
@@ -164,16 +170,16 @@ class GraphView extends View {
 		}
 	}
 	
-	private Projection getDataScale() {
-		int xscale = mCounters.get(0).getHistory()
+	private Projection getDataScale(int index) {
+		int xscale = mCounters.get(index * 2).getHistory()
 					.getData(mResolution).getCapacity();
 		if (mResolution % 2 == 0) {
 			xscale /= 2;
 		}
 		int yscale = 10;
 		
-		for (int i=0; i< mCounters.size(); ++i) {
-			int val = mCounters.get(i).getHistory()
+		for (int i=0; i< 2; ++i) {
+			int val = mCounters.get(index * 2 + i).getHistory()
 					.getData(mResolution).getMax(xscale);
 			if (val > yscale) {
 				yscale = val;
@@ -181,7 +187,10 @@ class GraphView extends View {
 		}
 		yscale = yscale + (yscale/10); // + 10%
 		yscale = ((yscale / 10) + 1) * 10;
-		return new Projection(getWidth(), getHeight() - 10,
+		int height = (getHeight() - 15) / 3;
+		return new Projection(getWidth() - 10,
+				height - 5,
+				height * index,
 				xscale, yscale);
 	}
 	
@@ -200,7 +209,8 @@ class GraphView extends View {
 		}
 	}
 	
-	private void drawAxis(Canvas canvas, Projection proj, Projection percent) {
+	private void drawAxis(Canvas canvas, Projection proj,
+			String title, String unit) {
 		
 		canvas.drawLine(proj.x(0), proj.y(0),
 				proj.x(proj.mXrange), proj.y(0),
@@ -211,9 +221,6 @@ class GraphView extends View {
 				proj.y(proj.mYrange),
 				mAxisPaint);
 		
-		canvas.drawLine(percent.x(percent.mXrange), percent.y(0),
-						percent.x(percent.mXrange), percent.y(100),
-						mAxisPaint);
 		
 		int x_step = proj.mXrange / TICKS;
 		int y_step = proj.mYrange / TICKS;
@@ -223,35 +230,12 @@ class GraphView extends View {
 			canvas.drawLine(proj.x(0), proj.y(y_step * i),
 					proj.x(0) + 10, proj.y(y_step * i), mAxisPaint);	
 		}
-		canvas.drawText(Integer.toString(proj.mYrange) + " bps",
+		canvas.drawText(Integer.toString(proj.mYrange) + unit,
 				proj.x(0) + 10, proj.y(proj.mYrange) + 10, mAxisPaint);
 		
-		canvas.drawText("100%",
-				percent.x(percent.mXrange) - 30, percent.y(100) + 10,
+		canvas.drawText(title, proj.x(proj.mXrange / 2),
+				proj.y(proj.mYrange) + 10,
 				mAxisPaint);
-		
-		canvas.drawText(getBanner(),
-				proj.x(proj.mXrange / 2), proj.y(0) + 12,
-				mAxisPaint);
-		
-		canvas.drawText("cell in", proj.x(proj.mXrange / 2) - 20,
-				proj.y(proj.mYrange) + 5,
-				mCellIn);
-		canvas.drawText("cell out", proj.x(proj.mXrange / 2) + 20,
-				proj.y(proj.mYrange) + 5,
-				mCellOut);
-		
-		canvas.drawText("wifi in", proj.x(proj.mXrange / 2) - 20,
-				proj.y(proj.mYrange) + 20,
-				mWifiIn);
-		canvas.drawText("wifi out", proj.x(proj.mXrange / 2) + 20,
-				proj.y(proj.mYrange) + 20,
-				mWifiOut);
-		
-		canvas.drawText("cpu", proj.x(proj.mXrange / 2) - 20,
-				proj.y(proj.mYrange) + 35,
-				mCpu);
-		
 	}
 		
 	

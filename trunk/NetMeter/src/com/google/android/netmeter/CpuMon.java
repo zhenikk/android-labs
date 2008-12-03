@@ -93,11 +93,11 @@ public class CpuMon {
 			long dtotal = total - mTotal;
 			if (mDisplay != null) {
 				mDisplay.get(0).setText(mPercentFmt.format(
-						(double)(duser+dsystem)*100.0/dtotal) + "%");
-				mDisplay.get(1).setText(mPercentFmt.format(
-						(double)(duser)*100.0/dtotal) + "%");
-				mDisplay.get(2).setText(mPercentFmt.format(
-						(double)(dsystem)*100.0/dtotal) + "%");
+						(double)(duser+dsystem)*100.0/dtotal) + "% ("
+				+ mPercentFmt.format(
+						(double)(duser)*100.0/dtotal) + "/"
+				+ mPercentFmt.format(
+						(double)(dsystem)*100.0/dtotal) + ")");
 			}
 			mHistory.add((int)((duser + dsystem) * 100 / dtotal));
 		} 

@@ -92,7 +92,7 @@ public class HistoryBuffer {
 	}
 	
 	public HistoryBuffer() {
-		mHourly = new CircularBuffer(360, 2);
+		mHourly = new CircularBuffer(720, 1);
 		mSixHours = new CircularBuffer(360, 12);
 		mDaily = new CircularBuffer(720, 24);
 	}
