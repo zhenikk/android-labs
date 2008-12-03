@@ -74,7 +74,7 @@ class GraphView extends View {
 	
 	public String toggleScale() {
 		mResolution += 1;
-		mResolution %= 6;
+		mResolution %= 7;
 		if (mResolution > getMaxTimescale()) {
 			mResolution = 0;
 		}
@@ -143,27 +143,30 @@ class GraphView extends View {
 					.getData(5).getSize();
 		
 		capacity -= capacity/10;
-		if (size > capacity/2) return 5;
-		if (size > capacity/4) return 4;
-		if (size > capacity/8) return 3;
-		if (size > capacity/24) return 2;
-		if (size > capacity/48) return 1;
+		if (size > capacity/2) return 6;
+		if (size > capacity/4) return 5;
+		if (size > capacity/8) return 4;
+		if (size > capacity/24) return 3;
+		if (size > capacity/48) return 2;
+		if (size > capacity/96) return 1;
 		return 0;
 	}
 	
 	private String getBanner() {
 		switch(mResolution) {
 		case 0:
-			return "30min";
+			return "15min";
 		case 1:
-			return "1hour";
+			return "30min";
 		case 2:
-			return "3hours";
+			return "1hour";
 		case 3:
-			return "6hours";
+			return "3hours";
 		case 4:
-			return "12hours";
+			return "6hours";
 		case 5:
+			return "12hours";
+		case 6:
 			return "24hours";
 		default:
 			return "invalid";
