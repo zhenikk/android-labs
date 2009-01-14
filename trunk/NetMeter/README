@@ -24,8 +24,10 @@ exits it. While running a persistent notification is posted in the status bar, w
  
  Menu:
  - reset: reset cumulative counter values
- - toggle scale: change history graph timescale by circulating between 30min, 1h,
+ - toggle scale: change history graph timescale by circulating between 15min, 30min, 1h,
    3h, 6h, 12h and 24h - up to the level at which data is available.
+ - show tasks: display a list of active tasks with their percentage of CPU used during the last
+   30 seconds.
  - stop: stop stats collection service and exit application.
 
 Author: Bernhard Suter (Bernhard.R.Suter-at-gmail-dot-com)
@@ -33,3 +35,4 @@ License: http://www.apache.org/licenses/LICENSE-2.0
 Source: http://code.google.com/p/android-labs/source/browse/#svn/trunk/NetMeter
 
 November 2008: Initial release for the Android platform running on T-Mobile G1.
+January 2009: Add support for CPU usage by task display

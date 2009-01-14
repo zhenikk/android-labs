@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NetMeter</string>
+    <string name="top_title">CPU activity by Task (last 30s)</string>
     <string name="iconized">NetMeter display</string>    
     <string name="menu_reset">reset</string>
     <string name="menu_toggle">toggle scale</string>
+    <string name="menu_top">show tasks</string>
     <string name="menu_stop">stop</string>
     <string name="disp_wifi">Wifi</string>
     <string name="disp_cell">Cell</string>  
@@ -16,4 +18,5 @@
     <string name="disp_out">Bytes out</string>  
     <string name="disp_user">apps</string>
     <string name="disp_system">kernel</string>  
+    <string name="disp_collecting">Collecting Data...</string>
 </resources>

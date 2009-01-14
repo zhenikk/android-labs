@@ -101,6 +101,12 @@ public class NetMeter extends Activity {
     		String banner = mGraph.toggleScale();
     		Toast.makeText(this, banner, Toast.LENGTH_SHORT).show();
     		break;
+    	case R.id.top:
+    		Intent intent = new Intent();
+            intent.setClass(this, TaskList.class);
+            startActivity(intent);
+
+    		break;
     	case R.id.stop:
     		stopService(new Intent(this, NetMeterService.class));
     		finish();
