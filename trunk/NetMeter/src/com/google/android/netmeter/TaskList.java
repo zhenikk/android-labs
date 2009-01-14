@@ -45,8 +45,8 @@ public class TaskList extends ListActivity {
     }
 	
     @Override
-    public void onStop() {
-    	super.onStop();
+    public void onPause() {
+    	super.onPause();
     	mHandler.removeCallbacks(mRefreshTask);
     	mTop = null;
     }
