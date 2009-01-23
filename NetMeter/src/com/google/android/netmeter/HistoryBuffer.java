@@ -103,6 +103,12 @@ public class HistoryBuffer {
 		mDaily.add(element);
 	}	
 	
+	public void pad(int count) {
+		for (int i=0; i < count; i++) {
+			add(0);
+		}
+	}
+	
 	public CircularBuffer getData(int resolution) {
 		switch (resolution) {
 		case 0:

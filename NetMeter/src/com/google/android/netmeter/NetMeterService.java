@@ -28,6 +28,7 @@ import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.TextView;
@@ -49,11 +50,22 @@ public class NetMeterService extends Service {
 	private StatsProcessor mStatsProc;
 	private CpuMon mCpuMon;
 	private GraphView mGraph = null;
+	private long mLastTime;
 	
 	private Handler mHandler = new Handler();
 	private Runnable mRefresh = new Runnable() {
 		public void run() {
-
+			long last_time = SystemClock.elapsedRealtime();
+			if (last_time - mLastTime > 10 * SAMPLING_INTERVAL * 1000) {
+				int padding = (int) ((last_time - mLastTime) / (SAMPLING_INTERVAL * 1000));
+				mCpuMon.getHistory().pad(padding);
+				
+				Vector<StatCounter> counters = mStatsProc.getCounters();
+				for (int i = 0; i < counters.size(); i++) {
+					counters.get(i).getHistory().pad(padding);
+				}
+			}
+			mLastTime = last_time;
 			mStatsProc.processUpdate();
 			mCpuMon.readStats();
 			if (mGraph != null) mGraph.refresh();
@@ -91,6 +103,7 @@ public class NetMeterService extends Service {
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		
 		postNotification();
+		mLastTime = SystemClock.elapsedRealtime();
 		mHandler.postDelayed(mRefresh, SAMPLING_INTERVAL * 1000);
 	}
 	
