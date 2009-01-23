@@ -176,7 +176,10 @@ class GraphView extends View {
 	private Projection getDataScale(int index) {
 		int xscale = mCounters.get(index * 2).getHistory()
 					.getData(mResolution).getCapacity();
-		if (mResolution % 2 == 0) {
+		if (mResolution == 0) {
+			xscale /= 4;
+		}
+		else if (mResolution % 2 == 1) {
 			xscale /= 2;
 		}
 		int yscale = 10;
