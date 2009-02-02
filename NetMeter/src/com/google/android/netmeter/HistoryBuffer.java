@@ -15,8 +15,6 @@
  */
 package com.google.android.netmeter;
 
-import java.util.Vector;
-
 public class HistoryBuffer {
 
 	private CircularBuffer mHourly;
@@ -25,9 +23,10 @@ public class HistoryBuffer {
 	
 	class CircularBuffer {
 		final private double EMA_FILTER = 0.5;
-		private Vector<Integer> mData;
+		private int[] mData;
 		final private int mCapacity;
 		final private int mSampleRate;
+		private int mSize=0;
 		private int mWritePos= 0;
 		private int mSum;
 		private int mSampleCount;
@@ -37,7 +36,7 @@ public class HistoryBuffer {
 
 		public CircularBuffer(int size, int sampling) 
 		{
-			mData = new Vector<Integer>(size);
+			mData = new int[size];
 			mCapacity = size;
 			mSampleRate = sampling;
 			mSum = 0;
@@ -48,10 +47,11 @@ public class HistoryBuffer {
 			mSum += element;
 			if (++mSampleCount < mSampleRate) return;
 			mEMA = (1.0 - EMA_FILTER) * mEMA + EMA_FILTER * (mSum / mSampleRate);
-			if (mData.size() < mCapacity) {
-				mData.addElement((int)mEMA);
+			if (mSize < mCapacity) {
+				mData[mWritePos] = (int)mEMA;
+				++mSize;
 			} else {
-				mData.set(mWritePos, (int)mEMA);
+				mData[mWritePos] = (int)mEMA;
 			}
 			++mWritePos;
 			mWritePos %= mCapacity;
@@ -60,16 +60,16 @@ public class HistoryBuffer {
 		}
 		
 		final public int lookBack(int steps) {
-			if (mData.size() == 0) return 0;
+			if (mSize == 0) return 0;
 			if (steps > mWritePos - 1) {
-				return mData.get(mCapacity - (steps - (mWritePos - 1)));
+				return mData[mCapacity - (steps - (mWritePos - 1))];
 			} else {
-				return mData.get(mWritePos -1  - steps);
+				return mData[mWritePos -1  - steps];
 			}
 		}
 		
 		final public int getSize() {
-			return mData.size();
+			return mSize;
 		}
 		
 		final public int getCapacity() {
@@ -78,10 +78,9 @@ public class HistoryBuffer {
 		
 		final public int getMax(int window) {
 			int max = 0;
-			if (window >= mData.size()) {
-				window = mData.size() -1;
+			if (window >= mSize) {
+				window = mSize -1;
 			}
-			//Log.i("NetMeter", "window="+window);
 			for (int i = 0; i < window; ++i) {
 				if ( lookBack(i) > max) {
 					max = lookBack(i);
