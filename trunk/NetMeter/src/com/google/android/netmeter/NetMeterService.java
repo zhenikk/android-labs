@@ -105,6 +105,7 @@ public class NetMeterService extends Service {
 		postNotification();
 		mLastTime = SystemClock.elapsedRealtime();
 		mHandler.postDelayed(mRefresh, SAMPLING_INTERVAL * 1000);
+		setForeground(true);
 	}
 	
 	
