@@ -157,34 +157,15 @@ public class BistroMath extends Activity {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.m_calculator) {
+		if (item.getItemId() == R.id.m_help) {
 			Intent myIntent = new Intent();
-			myIntent.setClassName("com.android.calculator2", "com.android.calculator2.Calculator");
-			startActivityForResult(myIntent, CALC_INTENT_RETURN);
+			myIntent.setClass(this, HelpActivity.class);
+			startActivity(myIntent);
 		} else {
 			setFieldFocus(item.getItemId());
 		}
 		return true;
 	}
-	
-	/**
-	 * Framework method called when return from a launched intent is available.
-	 */
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-            Intent data) {
-		// The calcualtor in the system platform does not (yet) return a result
-        if (requestCode == CALC_INTENT_RETURN) {
-            if (resultCode == RESULT_OK) {
-                try {
-                	mCalculator.setFeatureValue(mCurrentInputField, Double.parseDouble(data.getAction()));
-                	resetValue();
-                } catch (NumberFormatException e) {
-                	Log.i("BistroMath", "Could not parse value from "+data.getAction());
-                }
-            }
-        }
-    }
 
 	
 	/**

@@ -4,5 +4,5 @@
 <item android:title="@string/m_tip" android:id="@+id/m_tip"/>
 <item android:title="@string/m_people" android:id="@+id/m_people"/>
 <item android:title="@string/m_fx" android:id="@+id/m_fx"/>
-<item android:title="@string/m_calculator" android:icon="@android:/drawable/ic_dialog_dialer" android:id="@+id/m_calculator"/>
+<item android:title="@string/m_help" android:icon="@android:/drawable/ic_menu_help" android:id="@+id/m_help"/>
 </menu>
