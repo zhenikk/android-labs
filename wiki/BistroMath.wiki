@@ -1,7 +1,3 @@
-#summary BistroMath description
-
-= BistroMath =
-
 BistroMath is a specialized calculator for solving "bistromatic" problems which involve numbers on a a waiters check-pad and people in restaurants. 
 
 Given the amount on the bill, we can quickly calculate tax, tip, how to divide equally among N people or convert into another currency.
