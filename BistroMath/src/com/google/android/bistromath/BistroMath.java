@@ -161,6 +161,10 @@ public class BistroMath extends Activity {
 			Intent myIntent = new Intent();
 			myIntent.setClass(this, HelpActivity.class);
 			startActivity(myIntent);
+		} else if (item.getItemId() == R.id.m_calculator) { 
+			Intent myIntent = new Intent();
+			myIntent.setClassName("com.android.calculator2", "com.android.calculator2.Calculator");
+			startActivity(myIntent);
 		} else {
 			setFieldFocus(item.getItemId());
 		}
