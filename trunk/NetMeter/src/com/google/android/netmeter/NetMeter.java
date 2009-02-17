@@ -105,7 +105,11 @@ public class NetMeter extends Activity {
     		Intent intent = new Intent();
             intent.setClass(this, TaskList.class);
             startActivity(intent);
-
+            break;
+    	case R.id.help:
+    		Intent myIntent = new Intent();
+    		myIntent.setClass(this, HelpActivity.class);
+    		startActivity(myIntent);
     		break;
     	case R.id.stop:
     		stopService(new Intent(this, NetMeterService.class));
