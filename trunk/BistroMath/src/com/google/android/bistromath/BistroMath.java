@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -99,32 +98,27 @@ public class BistroMath extends Activity {
     	findViewById(R.id.row_people).setOnTouchListener(touch);
     	findViewById(R.id.head_fx).setOnTouchListener(touch);
 
-    	// Programmatically define virtual key-pad, if no keyboard is present in current
-    	// configuration
-    	if (getResources().getConfiguration().keyboardHidden 
-    			== Configuration.KEYBOARDHIDDEN_YES) {
-    		
-    		// Key-press listener - each key sens its label as the value
-    		View.OnClickListener listener = new View.OnClickListener() {
-        		public void onClick(View v) {
-        			// Perform action on click
-        			updateValue((String)((TextView)v).getText());
-        		}
-        	};
-    		// Create the grid of buttons in the table view
-    		mKeypad.setStretchAllColumns(true);
-    		for(int row = 0; row < 4; row++) {
-    			TableRow tr = new TableRow(this);
-    			mKeypad.addView(tr);
-    			for (int col=0; col<3; col++) {
-    				Button b = new Button(this);
-    				b.setText(mKeys[row*3+col]);
-    				b.setTextSize((float) 30.0);
-    				b.setOnClickListener(listener);
-    				tr.addView(b);
-    			}
+    	// Key-press listener - each key sens its label as the value
+    	View.OnClickListener listener = new View.OnClickListener() {
+    		public void onClick(View v) {
+    			// Perform action on click
+    			updateValue((String)((TextView)v).getText());
+    		}
+    	};
+    	// Create the grid of buttons in the table view
+    	mKeypad.setStretchAllColumns(true);
+    	for(int row = 0; row < 4; row++) {
+    		TableRow tr = new TableRow(this);
+    		mKeypad.addView(tr);
+    		for (int col=0; col<3; col++) {
+    			Button b = new Button(this);
+    			b.setText(mKeys[row*3+col]);
+    			b.setTextSize((float) 30.0);
+    			b.setOnClickListener(listener);
+    			tr.addView(b);
     		}
     	}
+ 
     }
    
     /**
