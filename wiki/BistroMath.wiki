@@ -34,3 +34,5 @@ See display fields for "Total" or "Per Person" amount for how much should be pai
 
 == Before or after tax? ==
 Depending on local custom or you preference, you can calculate tip before or after tax. By setting a tax rate (menu->Tax and enter the tax rate number) and a tipping rate (menu->Tip and enter the desired percentage for the tip), both values are now calculated separately based on the pre-tax amount of the bill.
+
+For more updates, see Android related entries on my [http://blog.kugelfish.com/search/label/Android blog]
