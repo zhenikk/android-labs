@@ -20,6 +20,6 @@ Measuring detailed CPU utilization is in itself a resource consuming process. Th
 
 
 NetMeter is primarily intended as an interactive diagnostic tool and not as a long-term network usage counter. For that purpose applications like NetCounter are a better fit.
-  
- 
-For any comments or questions please contact android@kugelfish.com
+
+   
+For more updates, see Android related entries on my [http://blog.kugelfish.com/search/label/Android blog] and for any comments or questions please contact android@kugelfish.com.
