@@ -16,6 +16,7 @@
 
 package com.google.android.noisealert;
 
+import com.google.android.noisealert.SmsRemote.SmsRemoteReceiver;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -35,11 +36,12 @@ import android.widget.TextView;
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 
-public class NoiseAlert extends Activity {
+public class NoiseAlert extends Activity implements SmsRemoteReceiver {
 	/* constants */
 	private static final String LOG_TAG = "NoiseAlert";
 	private static final int POLL_INTERVAL = 300;
 	private static final int NO_NUM_DIALOG_ID=1;
+	private static final String[] REMOTE_CMDS = {"start", "stop", "panic"};
 
 	/** running state **/
 	private boolean mAutoResume = false;
@@ -52,6 +54,7 @@ public class NoiseAlert extends Activity {
 	private int mThreshold;
 	private int mPollDelay;
 	private String mPhoneNumber;
+	private String mSmsSecurityCode;
 	
 	private PowerManager.WakeLock mWakeLock;
 
@@ -64,6 +67,9 @@ public class NoiseAlert extends Activity {
 
 	/* data source */
 	private SoundMeter mSensor;
+	
+	/* SMS remote control */
+	private SmsRemote mRemote;
 
 	private Runnable mSleepTask = new Runnable() {
 		public void run() {
@@ -111,15 +117,20 @@ public class NoiseAlert extends Activity {
 
 		mSensor = new SoundMeter();
 		mDisplay = (SoundLevelView) findViewById(R.id.volume);
+		mRemote = new SmsRemote();
 		
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "NoiseAlert");
 	}
+
 	
 	@Override
 	public void onResume() {
 		super.onResume();
 		readApplicationPreferences();
+		if (mSmsSecurityCode.length() != 0) {
+			mRemote.register(this, mSmsSecurityCode, REMOTE_CMDS);
+		}
 		mDisplay.setLevel(0, mThreshold);
 		if (mAutoResume) {
 			start();
@@ -130,6 +141,7 @@ public class NoiseAlert extends Activity {
 	public void onStop() {
 		super.onStop();
 		stop();
+		mRemote.deregister();
 	}
 
 	@Override
@@ -184,10 +196,31 @@ public class NoiseAlert extends Activity {
 		case R.id.panic:
 			callForHelp();
 			break;
+		case R.id.help:
+			Intent myIntent = new Intent();
+			myIntent.setClass(this, HelpActivity.class);
+			startActivity(myIntent);
 		}
 		return true;
 	}
 
+	public void receive(String cmd) {
+		if (cmd == "start" & !mRunning) {
+			if (mPhoneNumber.length() != 0) {
+				mAutoResume = true;
+				mRunning = true;
+				mTestMode = false;
+				start();
+			}
+		} else if (cmd == "stop" & mRunning) {
+			mAutoResume = false;
+			mRunning = false;
+			stop();
+		} else if (cmd == "panic") {
+			callForHelp();
+		}
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		if (id == NO_NUM_DIALOG_ID) {
@@ -241,6 +274,7 @@ public class NoiseAlert extends Activity {
 		Log.i(LOG_TAG, "threshold=" + mThreshold);
 		mPollDelay = Integer.parseInt(prefs.getString("sleep", null));
 		Log.i(LOG_TAG, "sleep=" + mPollDelay);
+		mSmsSecurityCode = prefs.getString("sms_security_code", null);
 	}
 
 	private void updateDisplay(String status, double signalEMA) {
@@ -264,4 +298,5 @@ public class NoiseAlert extends Activity {
 		final Uri number = Uri.fromParts("tel", mPhoneNumber, "");
 		startActivity(new Intent(Intent.ACTION_CALL, number));	
 	}
+
 };
