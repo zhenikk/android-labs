@@ -16,8 +16,8 @@
 package com.google.android.bistromath;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -29,6 +29,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * 
@@ -89,14 +90,29 @@ public class BistroMath extends Activity {
 				setFieldFocus(v.getId());
 				return false;
 			}
-    		
     	};
+			
+		// Define a touch-screen handler for touch-sensitive parts of display grid
+    	// to send values to expense reporting app.
+    	View.OnTouchListener report = new View.OnTouchListener() {
+    		public boolean onTouch(View v, MotionEvent event) {
+    			sendToExpenseApp(v.getId());
+    			return false;
+					}	
+	    };	
+    		
+    	
     	// Install touch-screen handler to certain rows and cells of display grid
     	findViewById(R.id.row_amount).setOnTouchListener(touch);
     	findViewById(R.id.row_tax).setOnTouchListener(touch);
     	findViewById(R.id.row_tip).setOnTouchListener(touch);
     	findViewById(R.id.row_people).setOnTouchListener(touch);
     	findViewById(R.id.head_fx).setOnTouchListener(touch);
+    	
+    	findViewById(R.id.loc_total).setOnTouchListener(report);
+    	findViewById(R.id.ref_total).setOnTouchListener(report);
+    	findViewById(R.id.loc_people).setOnTouchListener(report);
+    	findViewById(R.id.ref_people).setOnTouchListener(report);
 
     	// Key-press listener - each key sens its label as the value
     	View.OnClickListener listener = new View.OnClickListener() {
@@ -159,7 +175,9 @@ public class BistroMath extends Activity {
 			Intent myIntent = new Intent();
 			myIntent.setClassName("com.android.calculator2", "com.android.calculator2.Calculator");
 			startActivity(myIntent);
-		} else {
+		} else if (item.getItemId() == R.id.m_expense) {
+			sendToExpenseApp(R.id.loc_total);
+		}else {	
 			setFieldFocus(item.getItemId());
 		}
 		return true;
@@ -314,5 +332,18 @@ public class BistroMath extends Activity {
     protected void resetValue() {
     	mValue = 0.0;
     	mDecimalPos = 1;
+    }
+    
+    protected void sendToExpenseApp(int field_id) {
+    	Intent launchIntent = new Intent();
+        launchIntent.setAction("com.funkyandroid.action.NEW_TRANSACTION");
+        launchIntent.putExtra("com.funkyandroid.CATEGORY", "BistroMath");
+        launchIntent.putExtra("com.funkyandroid.AMOUNT", mCalculator.getFieldValue(field_id));
+        try {
+        	startActivity(launchIntent);
+        } catch (ActivityNotFoundException e) {
+        	Toast.makeText(this, getString(R.string.err_expense),
+        			Toast.LENGTH_LONG).show();
+        }
     }
 }
