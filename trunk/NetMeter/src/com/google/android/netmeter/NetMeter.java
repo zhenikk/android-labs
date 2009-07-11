@@ -17,7 +17,6 @@ package com.google.android.netmeter;
 
 
 import java.util.Vector;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,6 +35,15 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/** 
+ * 
+ * Main controller activity for NetMeter application.
+ * 
+ * Creates the display (table plus graph view) and connects to
+ * the NetMeterService, starting it if necessary. Since the service
+ * will directly update the display when it generates new data, references
+ * of the display elements are passed to the service after binding.
+ */
 public class NetMeter extends Activity {
 	final private String TAG="NetMeter";
 	
@@ -48,11 +56,17 @@ public class NetMeter extends Activity {
 	
 	private GraphView mGraph;
 	
+	/**
+	 * Service connection callback object used to establish communication with 
+	 * the service after binding to it.
+	 */
 	private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             
-            mService = ((NetMeterService.MonNetBinder)service).getService();
+        	// Get reference to (local) service from binder
+            mService = ((NetMeterService.NetMeterBinder)service).getService();
             Log.i(TAG, "service connected");
+            // link up the display elements to be updated by the service
             mService.setDisplay(mStatsFields, mInfoFields, mCpuFields, mGraph);
         }
 
@@ -63,7 +77,9 @@ public class NetMeter extends Activity {
     };
 
 	
-    /** Called when the activity is first created. */
+    /** 
+     * Framework method called when the activity is first created. 
+     * */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +96,9 @@ public class NetMeter extends Activity {
         createTable();
     }
 
-
+    /**
+     * Framework method to create menu structure.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
@@ -119,6 +137,12 @@ public class NetMeter extends Activity {
     	return true;
     }
 
+    /**
+     * Framework method called when activity becomes the foreground activity.
+     * 
+     * onResume/onPause implement the most narrow window of activity life-cycle
+     * during which the activity is in focus and foreground.
+     */
     @Override
     public void onResume() {
     	super.onResume();
@@ -127,19 +151,21 @@ public class NetMeter extends Activity {
 
     }
 
+    /**
+     * Framework method called when activity looses foreground position
+     */
     @Override
     public void onPause() {
     	super.onPause();
     	unbindService(mConnection);
     }
-    
-    @Override
-    public void onDestroy() {
-    	super.onDestroy();
-    	Log.i(TAG, "onDestroy");
-    	
-    }
-    
+ 
+    /**
+     *  Algorithmically generate the table on the top half of the screen,
+     *  which is used to display status and cummulative usage of
+     *  cellular and wifi network interfaces, as well as the current
+     *  CPU usage.
+     */
     private void createTable() {
     	TableLayout table = (TableLayout)findViewById(R.id.disp);
     	
@@ -153,10 +179,17 @@ public class NetMeter extends Activity {
     	createTableRow(table, 0, 0, 0);
     	mCpuFields.addElement(createTableRow(table, R.string.disp_cpu,
     				R.string.disp_cpu_type, 0));
-    	//mCpuFields.addElement(createTableRow(table, -1, R.string.disp_user, 0));
-    	//mCpuFields.addElement(createTableRow(table, -1, R.string.disp_system, 0));
     }
     
+    /**
+     * Helper function to generate a table row based on 4 integer arguments which
+     * represent the column cells in the row.
+     * 
+     * If the associated value is -1, the cell is invisible, if it is 0, the cell is set
+     * to an empty text and otherwise the number is assumed to be the ID of a text
+     * resource.
+     * 
+     */
     private TextView createTableRow(TableLayout table, int c1, int c2, int c3) {
     	int[] cell_text_ids = {c1, c2, c3};
     	TableRow tr = new TableRow(this);

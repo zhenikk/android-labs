@@ -33,28 +33,48 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.TextView;
 
-
+/**
+ * Local service which operates in close cooperation with NetMeter activity.
+ * 
+ * Execute monitoring through periodic polling, update in-memory history
+ * buffers and update display if linkage has been established by the
+ * activity after binding to the service.
+ * 
+ * Whenever running, maintain a persistent notification in the status bar, which
+ * sends an intent to (re)start NetMeter activity.
+ */
 public class NetMeterService extends Service {
 	final private String TAG="NetMeterService";
 	final private int SAMPLING_INTERVAL = 5;
 	
 	private NotificationManager mNM;
 	
-	public class MonNetBinder extends Binder {
+	/**
+	 * 
+	 * Binder implementation which passes through a reference to
+	 * this service. Since this is a local service, the activity
+	 * can then call directly methods on this service instance.
+	 */
+	public class NetMeterBinder extends Binder {
         NetMeterService getService() {
             return NetMeterService.this;
         }
     }
-	private final IBinder mBinder = new MonNetBinder();
+	private final IBinder mBinder = new NetMeterBinder();
 	
+	// various stats collection objects
 	private StatsProcessor mStatsProc;
 	private CpuMon mCpuMon;
 	private GraphView mGraph = null;
 	private long mLastTime;
 	
+	// All the polling and display updating is driven from this
+	// hander which is periodically executed every SAMPLING_INTERVAL seconds.
 	private Handler mHandler = new Handler();
 	private Runnable mRefresh = new Runnable() {
 		public void run() {
+			// Compensate for sleep time, since this hander is not getting called
+			// when the device is asleep/suspended
 			long last_time = SystemClock.elapsedRealtime();
 			if (last_time - mLastTime > 10 * SAMPLING_INTERVAL * 1000) {
 				int padding = (int) ((last_time - mLastTime) / (SAMPLING_INTERVAL * 1000));
@@ -72,11 +92,26 @@ public class NetMeterService extends Service {
 			mHandler.postDelayed(mRefresh, SAMPLING_INTERVAL * 1000);
 		}
 	};
-	
+	/**
+	 * Reset the counters - triggered by the reset menu of the controller activity
+	 */
 	public void resetCounters() {
 		mStatsProc.reset();
 	}
 	
+	/**
+	 * 
+	 * Link the display objects set up by the controller activity
+	 * to the service so that they can be updated with the latest
+	 * state after each polling interval
+	 * 
+	 * In retrospect, this is probably a rather hacky architecture.
+	 * 
+	 * @param stats_views text view to display network counters
+	 * @param info_views text views to display network status info
+	 * @param cpu_views text views to display CPU usage information
+	 * @param graph reference to graph widget
+	 */
 	public void setDisplay(Vector<TextView> stats_views,
 			Vector<TextView> info_views,
 			Vector<TextView> cpu_views,
@@ -87,7 +122,10 @@ public class NetMeterService extends Service {
 		graph.linkCounters(mStatsProc.getCounters(),
 						mCpuMon.getHistory());
 	}
-	
+	 
+	/**
+	 * Framework method called when the service is first created.
+	 */
 	@Override
     public void onCreate() {
 		Log.i(TAG, "onCreate");
@@ -108,7 +146,9 @@ public class NetMeterService extends Service {
 		setForeground(true);
 	}
 	
-	
+	/**
+	 * Framework method called when the service is stopped/destroyed
+	 */
 	@Override
     public void onDestroy() {
 		Log.i(TAG, "onDestroy");
@@ -116,12 +156,18 @@ public class NetMeterService extends Service {
 		mHandler.removeCallbacks(mRefresh);
 	}
 
+	/**
+	 * Framework method called whenever an activity binds to this service.
+	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
 		Log.i(TAG, "onBind");
 		return mBinder;
 	}
-	
+	/**
+	 * Framework method called when an activity binding to the service
+	 * is broken.
+	 */
 	@Override
 	public boolean onUnbind(Intent arg) {
 		Log.i(TAG, "onUnbind");
@@ -131,6 +177,10 @@ public class NetMeterService extends Service {
 		return true;
 	}
 	
+	/**
+	 * Set up the notification in the status bar, which can be used to restart the
+	 * NetMeter main display activity.
+	 */
 	private void postNotification() {
     	// In this sample, we'll use the same text for the ticker and the expanded notification
     	CharSequence text = getText(R.string.app_name);

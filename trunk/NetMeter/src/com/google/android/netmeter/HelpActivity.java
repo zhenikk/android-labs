@@ -18,8 +18,17 @@ package com.google.android.netmeter;
 import android.app.Activity;
 import android.os.Bundle;
 
+/**
+ * 
+ * Activity which display the static helptext
+ * defined in the string resources file.
+ *
+ */
 public class HelpActivity extends Activity {
 	
+	/**
+	 * Framework method called when activity is created.
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
