@@ -295,6 +295,17 @@ class Calculator {
 	}
 	
 	/**
+	 * Get the current string value of a particular filed
+	 * 
+	 * @param feature_id field selector.
+	 * @return String value of field.
+	 */
+	public String getFieldValue(int feature_id) {
+		TextView field = mViews.get(feature_id);
+		return field.getText().toString();
+	}
+	
+	/**
 	 * Private helper to set a TextView with a double value formatted as currency
 	 * 
 	 * @param id resource ID for TextView field (in cache)

@@ -14,7 +14,9 @@
     <string name="m_people">Split</string>
     <string name="m_fx">FX Rate</string>
     <string name="m_calculator">Calculator</string>
+    <string name="m_expense">File Expense</string>
     <string name="m_help">Help</string>
+    <string name="err_expense">Install \"Funky Expenses\" application to handle expense reporting requests</string>
     <string name="help_title">BistroMath Help</string>
     <string name="help_text">
     \n
@@ -54,7 +56,14 @@
     the desired percentage for the tip), both values are now calculated separately based on the pre-tax
     amount of the bill.\n
     \n
-    More information, including the source code can be found at http://android-labs.googlecode.com/\n
+    <b>File expenses</b>\n
+    After calculating, the results can be passed to an expense reporting application for expense tracking and filing.
+    At this point, the only application which supports the triggering intent is \"Funky Expenses\". To file an expense
+    based on the current total, select menu->More->File Expense or tap on the field with the total value on the
+    screen. Totals in both local and my currency as well as the per-person values in local and my currency can be
+    filed to the expense reporting app as well by tapping on the corresponding fields (no menu support, except for
+    the total).
+    \n
     \n
     For any comments or questions please contact android@kugelfish.com\n
     \n
