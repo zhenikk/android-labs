@@ -128,6 +128,9 @@ class Top {
 	}
 	
 	private String cleanCmdline(String raw) {
+		if ( raw == null ) {
+			return "<invalid>";
+		}
 		for (int i=0; i< raw.length(); i++) {
 			if (Character.isIdentifierIgnorable(raw.charAt(i))) {
 				return raw.substring(0, i);
